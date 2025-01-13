@@ -108,6 +108,8 @@ private:
   int _case_for_sim;
   int _dump_all;		// dump all analog signals
 
+  int _measure_power;   // measure average power consumption
+
   const char *_output_fmt;	// output format
 
   struct iHashtable *_to_xyce;	// global bool ID to Xyce DAC (xycefanout)

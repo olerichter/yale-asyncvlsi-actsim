@@ -380,6 +380,7 @@ XyceActInterface::XyceActInterface()
   config_set_default_int ("sim.device.waveform_steps", 10);
   config_set_default_int ("sim.device.case_for_sim", 0);
   config_set_default_int ("sim.device.dump_all", 0);
+  config_set_default_int ("sim.device.measure_power", 0);
   config_set_default_string ("sim.device.output_format", "raw");
   config_set_default_string ("sim.device.outfile", "xyce_out");
   config_set_default_real ("sim.device.stop_time", 1e-6);
@@ -403,6 +404,8 @@ XyceActInterface::XyceActInterface()
   _settling_time = config_get_real ("sim.device.settling_time");
 
   _case_for_sim = config_get_int ("sim.device.case_for_sim");
+
+  _measure_power = config_get_int ("sim.device.measure_power");
 
   _dump_all = config_get_int ("sim.device.dump_all");
 
@@ -876,6 +879,10 @@ void XyceActInterface::initXyce ()
     }
   }
   fprintf (sfp, "\n");
+
+  if (_measure_power) {
+    fprintf (sfp, ".measure tran p_avg avg {v(%s)*i(vvs0)} FROM=0 TO=%f\n", Vddname, config_get_real ("sim.device.stop_time"));
+  }
 
   fprintf (sfp, ".end\n");
   fclose (sfp);
