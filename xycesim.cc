@@ -802,7 +802,7 @@ void XyceActInterface::initXyce ()
 
 
   A_FREE (xyce_glob);
-  fprintf (sfp, ".tran 0 1\n");
+  fprintf (sfp, ".tran 0 1 NOOP\n");
 
   // parse output format string: colon-separated list of formats
   // it can include ONE Xyce-internal format and any number of
@@ -881,7 +881,27 @@ void XyceActInterface::initXyce ()
   fprintf (sfp, "\n");
 
   if (_measure_power) {
-    fprintf (sfp, ".measure tran p_avg avg {v(%s)*i(vvs0)} FROM=0 TO=%f\n", Vddname, config_get_real ("sim.device.stop_time"));
+    fprintf (sfp, ".measure tran p_avg_with_reset avg {v(%s)*i(vvs0)} FROM=0 TO=%f\n", Vddname, config_get_real ("sim.device.stop_time"));
+    fprintf (sfp, ".measure tran p_avg avg {v(%s)*i(vvs0)} FROM=0.0000000101\n",Vddname);
+    //fprintf (sfp, ".measure tran t_int\n");
+    //fprintf (sfp, ".measure tran p_int_from_reset INTEG {v(%s)*i(vvs0)} TRIG v(Reset)=0.6 FALL=1\n", Vddname);
+    fprintf (sfp, ".measure tran t_int_reset when v(Reset)=0.6 FALL=1\n");
+    fprintf (sfp, ".measure tran t_int_from_reset_ctr TRIG TIME=0.0000000101 TARG v(b_ar_aa)=0.6 FALL=1 FROM=0.0000000101 TO=1\n");
+    fprintf (sfp, ".measure tran t_ack_cycle TRIG v(b_al_aa)=0.6 RISE=1 TARG v(b_ar_aa)=0.6 RISE=1 FROM=0.0000000101 TO=1\n");
+    fprintf (sfp, ".measure tran t_ack_l_rise1 when v(b_al_aa)=0.6 RISE=1 FROM=0.0000000101\n");
+    fprintf (sfp, ".measure tran t_ack_l_fall1 when v(b_al_aa)=0.6 FALL=1 FROM=0.0000000101\n");
+    fprintf (sfp, ".measure tran t_ack_l_rise2 when v(b_al_aa)=0.6 RISE=2 FROM=0.0000000101\n");
+    fprintf (sfp, ".measure tran t_ack_l_fall2 when v(b_al_aa)=0.6 FALL=2 FROM=0.0000000101\n");
+    fprintf (sfp, ".measure tran t_ack_r_rise1 when v(b_ar_aa)=0.6 RISE=1 FROM=0.0000000101\n");
+    fprintf (sfp, ".measure tran t_ack_r_fall1 when v(b_ar_aa)=0.6 FALL=1 FROM=0.0000000101\n");
+    fprintf (sfp, ".measure tran t_ack_r_rise2 when v(b_ar_aa)=0.6 RISE=2 FROM=0.0000000101\n");
+    fprintf (sfp, ".measure tran t_ack_r_fall2 when v(b_ar_aa)=0.6 FALL=2 FROM=0.0000000101\n");
+    fprintf (sfp, ".print tran format=csv file=currents.csv\n");
+    fprintf (sfp, "+ i(vvs0)\n");
+    //fprintf (sfp, "+ std i(vvs0)\n");
+    fprintf (sfp, "+ i(vvs1)\n");
+    //fprintf (sfp, "+ std i(vvs1)\n");
+
   }
 
   fprintf (sfp, ".end\n");
